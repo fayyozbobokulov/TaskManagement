@@ -1,26 +1,37 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from '../dto/create-auth.dto';
-import { UpdateAuthDto } from '../dto/update-auth.dto';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { AuthCredentialsDto } from "../dto/create-auth.dto";
+import { UpdateAuthDto } from "../dto/update-auth.dto";
+import { UserRepository } from "../repos/user.repository";
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    @InjectRepository(UserRepository) private userRepository: UserRepository
+  ) {}
+  async signUp(authCredentialsDto: AuthCredentialsDto) {
+    return this.userRepository.signUp(authCredentialsDto);
+  }
+
+  async singIn(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+    const username = await this.userRepository.validateUserPassword(
+      authCredentialsDto
+    );
+    if (!username) {
+      throw new UnauthorizedException("Invalid credentials!");
+    }
+    return username;
   }
 
   findAll() {
     return `This action returns all auth`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
+  update(id: string, updateAuthDto: UpdateAuthDto) {
     return `This action updates a #${id} auth`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} auth`;
   }
 }
