@@ -7,17 +7,21 @@ import {
   Param,
   Delete,
   ValidationPipe,
+  UseGuards,
 } from "@nestjs/common";
 import { AuthService } from "../services/auth.service";
 import { AuthCredentialsDto } from "../dto/create-auth.dto";
 import { UpdateAuthDto } from "../dto/update-auth.dto";
+import { User } from "../entities/user.entity";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post("signup")
-  signUp(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
+  signUp(
+    @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto
+  ): Promise<User> {
     return this.authService.signUp(authCredentialsDto);
   }
 
@@ -32,7 +36,9 @@ export class AuthController {
   // }
 
   @Post("signin")
-  signIn(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
+  signIn(
+    @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto
+  ): Promise<{ accessToken: string }> {
     return this.authService.singIn(authCredentialsDto);
   }
 
